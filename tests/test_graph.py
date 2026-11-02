@@ -278,3 +278,27 @@ def test_filter_value_alias_and_normalisation(catalog: list[MetricInfo]) -> None
     agent, _, _ = graph(catalog, parsed, values={"country": ["Brasil", "China"]})
     query = agent.ask("net revenue in brazil").query
     assert query.filters[0].values == ["Brasil"] and query.group_by == [] and query.grain is None
+
+
+def test_unrequested_grain_is_dropped(catalog: list[MetricInfo]) -> None:
+    """
+    #Feature: Agent routing
+    #Scenario: The LLM adds a monthly series nobody asked for - answer the question as asked (top 5 countries,
+    not top 5 country-months)
+    #Complexity: Time O(1)
+    """
+    parsed = what("net_revenue", group_by=["country"], grain="month", start=date(2026, 7, 1), end=date(2026, 9, 30),
+                  order="desc", limit=5)
+    agent, _, _ = graph(catalog, parsed)
+    assert agent.ask("Net revenue by country for Q3 2026, top five").query.grain is None
+
+
+def test_requested_grain_is_kept(catalog: list[MetricInfo]) -> None:
+    """
+    #Feature: Agent routing
+    #Scenario: "by month" asks for a series, so the grain stays
+    #Complexity: Time O(1)
+    """
+    parsed = what("net_revenue", grain="month", start=date(2026, 1, 1), end=date(2026, 3, 31))
+    agent, _, _ = graph(catalog, parsed)
+    assert agent.ask("Net revenue by month in Q1 2026").query.grain == "month"

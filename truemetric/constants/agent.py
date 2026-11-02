@@ -111,6 +111,8 @@ NUMBER_WORDS: dict[str, int] = {"one": 1, "two": 2, "three": 3, "four": 4, "five
 
 FILTER_SKIP_DIMENSIONS: set[str] = {"status", "gender"}
 
+SERIES_WORDS: list[str] = ["trend", "over time", "time series", "month by month", "week by week", "day by day"]
+
 GRAIN_WORDS: dict[str, str] = {
     "daily": "day", "by day": "day", "per day": "day", "each day": "day",
     "weekly": "week", "by week": "week", "per week": "week", "each week": "week",

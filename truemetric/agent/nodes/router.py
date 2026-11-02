@@ -6,7 +6,7 @@ from truemetric.constants import VALUE_ALIASES
 from truemetric.errors import Errors
 from truemetric.interfaces import IQuestionParser, ISemanticLayer
 from truemetric.schemas import Intent, MetricFilter, MetricQuery, ParsedQuestion
-from truemetric.utilities import same_bucket
+from truemetric.utilities import asks_for_series, same_bucket
 
 logger = logging.getLogger(__name__)
 
@@ -125,6 +125,32 @@ class RouterNode:
             logger.error("_validate failed: %s", exc, extra={"tenant_id": self._workspace_id})
             raise
 
+    def _drop_unrequested_grain(self, parsed: ParsedQuestion, question: str) -> ParsedQuestion:
+        """
+        #Feature: Agent routing
+        #Scenario: A parser (usually the LLM) added a time series the question never asked for
+        #Complexity: Time O(question length)
+
+        Without this, "top 5 countries in Q3" can become the top 5 country-months.
+
+        Args:
+            parsed: A validated WHAT question.
+            question: The user's question.
+
+        Returns:
+            The question with grain cleared unless a series was requested.
+        """
+        try:
+            query = parsed.query
+            if query is None or query.grain is None or asks_for_series(question):
+                return parsed
+            logger.info("dropping unrequested grain=%s for metric=%s", query.grain, query.metric,
+                        extra={"tenant_id": self._workspace_id})
+            return parsed.model_copy(update={"query": query.model_copy(update={"grain": None})})
+        except Exception as exc:
+            logger.error("_drop_unrequested_grain failed: %s", exc, extra={"tenant_id": self._workspace_id})
+            raise
+
     def route(self, question: str) -> ParsedQuestion:
         """
         #Feature: Agent routing
@@ -141,7 +167,10 @@ class RouterNode:
             parsed = self._parser.parse(question, self._semantic.list_metrics(), self._today())
             if parsed.intent == Intent.WHAT and parsed.query is None:
                 return ParsedQuestion(intent=Intent.OUT_OF_SCOPE, gap="what was asked", source=parsed.source)
-            return self._validate(parsed) if parsed.intent == Intent.WHAT else parsed
+            if parsed.intent != Intent.WHAT:
+                return parsed
+            validated = self._validate(parsed)
+            return self._drop_unrequested_grain(validated, question) if validated.intent == Intent.WHAT else validated
         except Exception as exc:
             logger.error("route failed: %s", exc, extra={"tenant_id": self._workspace_id})
             raise

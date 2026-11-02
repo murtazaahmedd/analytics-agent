@@ -2,7 +2,7 @@ from datetime import date
 
 import pytest
 
-from truemetric.utilities import parse_period
+from truemetric.utilities import asks_for_series, parse_period
 
 TODAY = date(2026, 11, 1)
 
@@ -41,3 +41,21 @@ def test_no_period(text: str) -> None:
     #Complexity: Time O(1)
     """
     assert parse_period(text, TODAY) is None
+
+
+@pytest.mark.parametrize("question,expected", [
+    ("Net revenue by month in Q1 2026", True),
+    ("Monthly net revenue for Q1 2026", True),
+    ("Sessions trend last quarter", True),
+    ("Net revenue per month, January to March 2026", True),
+    ("AOV by country for Q3 2026, top five", False),
+    ("Gross revenue for each country in 2025", False),
+    ("Average basket value, April through June 2026", False),
+])
+def test_asks_for_series(question: str, expected: bool) -> None:
+    """
+    #Feature: Agent routing
+    #Scenario: Grain words request a series; dimensions and ranges do not
+    #Complexity: Time O(1)
+    """
+    assert asks_for_series(question) is expected
