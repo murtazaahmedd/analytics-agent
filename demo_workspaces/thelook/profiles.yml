@@ -1,0 +1,8 @@
+truemetric:
+  target: duckdb
+  outputs:
+    duckdb:
+      type: duckdb
+      path: "{{ env_var('TRUEMETRIC_DUCKDB_PATH', '../../data/warehouse.duckdb') }}"
+      schema: analytics
+      threads: 4

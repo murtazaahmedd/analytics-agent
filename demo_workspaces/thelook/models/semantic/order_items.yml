@@ -1,0 +1,45 @@
+semantic_models:
+  - name: order_items
+    description: One row per order item, dated by order creation time.
+    model: ref('fct_order_items')
+    defaults:
+      agg_time_dimension: created_at
+    entities:
+      - name: order_item
+        type: primary
+        expr: order_item_id
+      - name: order
+        type: foreign
+        expr: order_id
+      - name: user
+        type: foreign
+        expr: user_id
+      - name: product
+        type: foreign
+        expr: product_id
+    dimensions:
+      - name: created_at
+        type: time
+        type_params:
+          time_granularity: day
+      - name: status
+        type: categorical
+    measures:
+      - name: gross_revenue_amount
+        agg: sum
+      - name: returned_revenue_amount
+        agg: sum
+      - name: margin_amount
+        agg: sum
+      - name: sold_items
+        agg: sum
+        expr: is_sold
+      - name: returned_items
+        agg: sum
+        expr: case when is_returned then 1 else 0 end
+      - name: delivered_items
+        agg: sum
+        expr: case when is_delivered then 1 else 0 end
+      - name: median_hours_to_ship
+        agg: median
+        expr: hours_to_ship

@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.env
+data/
+target/
+dbt_packages/
+logs/
+.user.yml
+.pytest_cache/
+evals/results/
+traces/
+node_modules/
+.next/
+*.egg-info/

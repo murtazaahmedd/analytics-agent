@@ -1,0 +1,10 @@
+# Eval workspace: the demo thelook warehouse with "today" pinned so relative dates are stable.
+workspace_id: eval_thelook
+dbt_project_dir: demo_workspaces/thelook
+duckdb_path: data/warehouse.duckdb
+fault_dir: data/faults
+as_of: "2026-11-01T00:00:00"
+tolerance: 0.005
+gate:
+  min_in_scope_accuracy: 0.95
+  max_confidently_wrong: 0

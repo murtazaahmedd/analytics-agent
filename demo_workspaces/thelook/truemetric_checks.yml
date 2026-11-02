@@ -1,0 +1,39 @@
+# Data health checks run by TrueMetric before any answer that uses these tables.
+# freshness_hours: max allowed lag between as_of and the newest timestamp.
+# volume: last complete day vs. trailing 7-day average.
+# distribution: 7-day mean vs. prior 28-day mean.
+tables:
+  fct_order_items:
+    timestamp_column: created_at
+    freshness_hours: 24
+    unique_key: order_item_id
+    required_columns: [order_item_id, order_id, user_id, product_id, status, created_at, shipped_at, sale_price, cost,
+                       gross_revenue_amount, returned_revenue_amount, margin_amount, is_sold, hours_to_ship]
+    not_null_columns: [order_item_id, order_id, sale_price, created_at]
+    volume: {min_ratio: 0.3, max_ratio: 3.0}
+    distribution: {column: sale_price, min_ratio: 0.5, max_ratio: 2.0}
+  fct_orders:
+    timestamp_column: created_at
+    freshness_hours: 24
+    unique_key: order_id
+    required_columns: [order_id, user_id, status, created_at, is_cancelled, is_first_order]
+    not_null_columns: [order_id, status, created_at]
+    volume: {min_ratio: 0.3, max_ratio: 3.0}
+  fct_customer_months:
+    required_columns: [user_id, order_month, orders_in_month, is_repeat]
+    not_null_columns: [user_id, order_month]
+  fct_sessions:
+    timestamp_column: session_start
+    freshness_hours: 24
+    unique_key: session_id
+    required_columns: [session_id, user_id, session_start, browser, traffic_source, has_cart, has_purchase]
+    not_null_columns: [session_id, session_start]
+    volume: {min_ratio: 0.3, max_ratio: 3.0}
+  dim_users:
+    unique_key: user_id
+    required_columns: [user_id, country, traffic_source, gender]
+    not_null_columns: [user_id]
+  dim_products:
+    unique_key: product_id
+    required_columns: [product_id, category, brand, department, distribution_center]
+    not_null_columns: [product_id]

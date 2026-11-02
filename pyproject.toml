@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "truemetric"
+version = "0.1.0"
+description = "AI data agent that answers business questions only through an approved metric layer."
+requires-python = ">=3.12"
+dependencies = [
+    "dbt-core>=1.10,<1.11",
+    "dbt-duckdb>=1.9",
+    "dbt-metricflow[dbt-duckdb]>=0.13",
+    "duckdb>=1.2",
+    "pydantic>=2.10",
+    "pyyaml>=6",
+    "mcp>=1.2",
+    "litellm>=1.60",
+    "tenacity>=8",
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "httpx>=0.27"]
+
+[tool.setuptools.packages.find]
+include = ["truemetric*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,10 @@
+# Could mean several metrics. Expected: one clarifying question.
+- id: a01
+  question: How are sales doing?
+  expect: clarify
+- id: a02
+  question: How many customers did we have last month?
+  expect: clarify
+- id: a03
+  question: How is the business doing this year?
+  expect: clarify

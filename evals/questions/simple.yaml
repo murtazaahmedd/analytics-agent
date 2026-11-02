@@ -1,0 +1,115 @@
+# In-scope, simple. Expected values come from hand-written SQL on raw thelook_ecommerce tables.
+- id: s01
+  question: What was net revenue in March 2024?
+  expect: answered
+  sql: |
+    select sum(case when status != 'Cancelled' then sale_price else 0 end)
+         - sum(case when status = 'Returned' then sale_price else 0 end)
+    from thelook_ecommerce.order_items
+    where cast(created_at as date) between '2024-03-01' and '2024-03-31'
+- id: s02
+  question: Gross revenue in 2025
+  expect: answered
+  sql: |
+    select sum(sale_price) from thelook_ecommerce.order_items
+    where status != 'Cancelled' and cast(created_at as date) between '2025-01-01' and '2025-12-31'
+- id: s03
+  question: How many orders were placed last month?
+  expect: answered
+  sql: |
+    select count(distinct order_id) from thelook_ecommerce.orders
+    where cast(created_at as date) between '2026-10-01' and '2026-10-31'
+- id: s04
+  question: What was the average order value in Q2 2026?
+  expect: answered
+  sql: |
+    with items as (
+      select sum(case when status != 'Cancelled' then sale_price else 0 end)
+           - sum(case when status = 'Returned' then sale_price else 0 end) as net
+      from thelook_ecommerce.order_items
+      where cast(created_at as date) between '2026-04-01' and '2026-06-30'),
+    orders as (
+      select count(*) as n from thelook_ecommerce.orders
+      where status != 'Cancelled' and cast(created_at as date) between '2026-04-01' and '2026-06-30')
+    select net / n from items, orders
+- id: s05
+  question: Units sold last week
+  expect: answered
+  sql: |
+    select count(*) from thelook_ecommerce.order_items
+    where status != 'Cancelled' and cast(created_at as date) between '2026-10-19' and '2026-10-25'
+- id: s06
+  question: What was the return rate in 2025?
+  expect: answered
+  sql: |
+    select sum(case when status = 'Returned' then 1 else 0 end) * 1.0
+         / sum(case when delivered_at is not null then 1 else 0 end)
+    from thelook_ecommerce.order_items
+    where cast(created_at as date) between '2025-01-01' and '2025-12-31'
+- id: s07
+  question: Cancellation rate in September 2026
+  expect: answered
+  sql: |
+    select avg(case when status = 'Cancelled' then 1.0 else 0 end) from thelook_ecommerce.orders
+    where cast(created_at as date) between '2026-09-01' and '2026-09-30'
+- id: s08
+  question: What was gross margin last quarter?
+  expect: answered
+  sql: |
+    with i as (select * from thelook_ecommerce.order_items),
+    p as (select id, cost from thelook_ecommerce.products)
+    select sum(i.sale_price - p.cost) / sum(i.sale_price)
+    from i join p on i.product_id = p.id
+    where i.status != 'Cancelled' and cast(i.created_at as date) between '2026-07-01' and '2026-09-30'
+- id: s09
+  question: How many new customers did we get in January 2026?
+  expect: answered
+  sql: |
+    with firsts as (select user_id, min(created_at) as first_at from thelook_ecommerce.orders group by 1)
+    select count(*) from firsts where cast(first_at as date) between '2026-01-01' and '2026-01-31'
+- id: s10
+  question: Repeat purchase rate in March 2026
+  expect: answered
+  sql: |
+    with m as (
+      select user_id, count(*) as n from thelook_ecommerce.orders
+      where status != 'Cancelled' and cast(created_at as date) between '2026-03-01' and '2026-03-31'
+      group by 1)
+    select date '2026-03-01', avg(case when n >= 2 then 1.0 else 0 end) from m
+- id: s11
+  question: How many sessions did we have yesterday?
+  expect: answered
+  sql: |
+    with s as (select session_id, min(created_at) as start_at from thelook_ecommerce.events group by 1)
+    select count(*) from s where cast(start_at as date) = '2026-10-31'
+- id: s12
+  question: What was the session-to-cart rate last month?
+  expect: answered
+  sql: |
+    with s as (
+      select session_id, min(created_at) as start_at, max(case when event_type = 'cart' then 1 else 0 end) as cart
+      from thelook_ecommerce.events group by 1)
+    select avg(cart * 1.0) from s where cast(start_at as date) between '2026-10-01' and '2026-10-31'
+- id: s13
+  question: Checkout conversion in Q3 2026
+  expect: answered
+  sql: |
+    with s as (
+      select session_id, min(created_at) as start_at,
+             max(case when event_type = 'cart' then 1 else 0 end) as cart,
+             max(case when event_type = 'purchase' then 1 else 0 end) as buy
+      from thelook_ecommerce.events group by 1)
+    select sum(cart * buy) * 1.0 / sum(cart) from s
+    where cast(start_at as date) between '2026-07-01' and '2026-09-30'
+- id: s14
+  question: What was fulfilment time in August 2026?
+  expect: answered
+  sql: |
+    select median(date_diff('second', created_at, shipped_at) / 3600.0) from thelook_ecommerce.order_items
+    where shipped_at is not null and cast(created_at as date) between '2026-08-01' and '2026-08-31'
+- id: s15
+  question: Active customers in October 2026
+  expect: answered
+  sql: |
+    select count(distinct user_id) from thelook_ecommerce.orders
+    where status != 'Cancelled' and cast(created_at as date) between '2026-10-01' and '2026-10-31'

@@ -1,0 +1,21 @@
+name: thelook
+version: "1.0.0"
+config-version: 2
+profile: truemetric
+
+model-paths: ["models"]
+test-paths: ["tests"]
+target-path: target
+
+vars:
+  source_database: null
+  source_schema: thelook_ecommerce
+
+models:
+  thelook:
+    staging:
+      +materialized: view
+    intermediate:
+      +materialized: view
+    marts:
+      +materialized: table

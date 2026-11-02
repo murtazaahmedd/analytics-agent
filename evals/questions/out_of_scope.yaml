@@ -1,0 +1,16 @@
+# No approved metric defines these. Expected: refuse (and log a metric gap), never a number.
+- id: o01
+  question: What is customer lifetime value by country?
+  expect: refused
+- id: o02
+  question: Show the 90-day repeat rate by first-order category
+  expect: refused
+- id: o03
+  question: What's our cohort retention for January 2026 signups?
+  expect: refused
+- id: o04
+  question: What was revenue per session last month?
+  expect: refused
+- id: o05
+  question: Orders by city last month
+  expect: refused

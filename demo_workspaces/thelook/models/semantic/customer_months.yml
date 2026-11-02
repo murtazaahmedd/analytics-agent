@@ -1,0 +1,25 @@
+semantic_models:
+  - name: customer_months
+    description: One row per customer per month with at least one non-cancelled order.
+    model: ref('fct_customer_months')
+    defaults:
+      agg_time_dimension: order_month
+    entities:
+      - name: customer_month
+        type: primary
+        expr: "cast(user_id as varchar) || '-' || cast(order_month as varchar)"
+      - name: user
+        type: foreign
+        expr: user_id
+    dimensions:
+      - name: order_month
+        type: time
+        type_params:
+          time_granularity: month
+    measures:
+      - name: purchasing_customers
+        agg: count_distinct
+        expr: user_id
+      - name: repeat_customers
+        agg: sum
+        expr: case when is_repeat then 1 else 0 end

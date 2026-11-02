@@ -1,0 +1,36 @@
+semantic_models:
+  - name: orders
+    description: One row per order, dated by order creation time.
+    model: ref('fct_orders')
+    defaults:
+      agg_time_dimension: created_at
+    entities:
+      - name: order
+        type: primary
+        expr: order_id
+      - name: user
+        type: foreign
+        expr: user_id
+    dimensions:
+      - name: created_at
+        type: time
+        type_params:
+          time_granularity: day
+      - name: status
+        type: categorical
+    measures:
+      - name: order_count
+        agg: count_distinct
+        expr: order_id
+      - name: non_cancelled_order_count
+        agg: sum
+        expr: case when not is_cancelled then 1 else 0 end
+      - name: cancelled_order_count
+        agg: sum
+        expr: case when is_cancelled then 1 else 0 end
+      - name: first_order_count
+        agg: sum
+        expr: case when is_first_order then 1 else 0 end
+      - name: active_customer_count
+        agg: count_distinct
+        expr: case when not is_cancelled then user_id end

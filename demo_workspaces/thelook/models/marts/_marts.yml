@@ -1,0 +1,51 @@
+version: 2
+
+models:
+  - name: metricflow_time_spine
+    time_spine:
+      standard_granularity_column: date_day
+    columns:
+      - name: date_day
+        granularity: day
+
+  - name: fct_order_items
+    columns:
+      - name: order_item_id
+        data_tests: [unique, not_null]
+      - name: order_id
+        data_tests: [not_null]
+      - name: sale_price
+        data_tests: [not_null]
+      - name: created_at
+        data_tests: [not_null]
+
+  - name: fct_orders
+    columns:
+      - name: order_id
+        data_tests: [unique, not_null]
+      - name: status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [Processing, Shipped, Complete, Returned, Cancelled]
+
+  - name: fct_customer_months
+    data_tests:
+      - dbt_utils_free_unique_combination:
+          arguments:
+            columns: [user_id, order_month]
+
+  - name: fct_sessions
+    columns:
+      - name: session_id
+        data_tests: [unique, not_null]
+
+  - name: dim_users
+    columns:
+      - name: user_id
+        data_tests: [unique, not_null]
+
+  - name: dim_products
+    columns:
+      - name: product_id
+        data_tests: [unique, not_null]

@@ -1,0 +1,32 @@
+semantic_models:
+  - name: sessions
+    description: One row per web session, dated by session start.
+    model: ref('fct_sessions')
+    defaults:
+      agg_time_dimension: session_start
+    entities:
+      - name: session
+        type: primary
+        expr: session_id
+      - name: user
+        type: foreign
+        expr: user_id
+    dimensions:
+      - name: session_start
+        type: time
+        type_params:
+          time_granularity: day
+      - name: browser
+        type: categorical
+      - name: traffic_source
+        type: categorical
+    measures:
+      - name: session_count
+        agg: count_distinct
+        expr: session_id
+      - name: cart_sessions
+        agg: sum
+        expr: case when has_cart then 1 else 0 end
+      - name: purchase_sessions
+        agg: sum
+        expr: case when has_cart and has_purchase then 1 else 0 end

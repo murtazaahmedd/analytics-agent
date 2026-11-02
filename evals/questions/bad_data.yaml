@@ -1,0 +1,26 @@
+# Asked against a warehouse copy with one planted fault. Expected: block and name the failed check.
+- id: f01
+  question: Gross revenue yesterday
+  fault: late_partition
+  expect: blocked
+  failed_check: freshness
+- id: f02
+  question: Units sold last week
+  fault: duplicated_batch
+  expect: blocked
+  failed_check: unique
+- id: f03
+  question: Gross margin last month
+  fault: renamed_column
+  expect: blocked
+  failed_check: schema
+- id: f04
+  question: Net revenue in the last 7 days
+  fault: null_sale_price
+  expect: blocked
+  failed_check: not_null
+- id: f05
+  question: Average order value last week
+  fault: currency_unit_change
+  expect: blocked
+  failed_check: distribution

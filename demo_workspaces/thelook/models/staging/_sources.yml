@@ -1,0 +1,13 @@
+version: 2
+
+sources:
+  - name: thelook
+    database: "{{ var('source_database') or target.database }}"
+    schema: "{{ var('source_schema') }}"
+    tables:
+      - name: orders
+      - name: order_items
+      - name: products
+      - name: users
+      - name: events
+      - name: distribution_centers

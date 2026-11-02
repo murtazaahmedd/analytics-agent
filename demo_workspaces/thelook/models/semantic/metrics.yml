@@ -1,0 +1,262 @@
+metrics:
+  - name: gross_revenue
+    label: Gross revenue
+    description: Sum of sale price of all non-cancelled order items, dated by order date.
+    config:
+      meta:
+        unit: currency
+    type: simple
+    type_params:
+      measure: gross_revenue_amount
+
+  - name: returned_revenue
+    label: Returned revenue
+    description: Sum of sale price of returned order items, dated by order date.
+    config:
+      meta:
+        unit: currency
+    type: simple
+    type_params:
+      measure: returned_revenue_amount
+
+  - name: net_revenue
+    label: Net revenue
+    description: Gross revenue minus the sale price of returned items.
+    config:
+      meta:
+        unit: currency
+    type: derived
+    type_params:
+      expr: gross_revenue - returned_revenue
+      metrics:
+        - name: gross_revenue
+        - name: returned_revenue
+
+  - name: orders
+    label: Orders
+    description: Count of distinct orders, all statuses.
+    config:
+      meta:
+        unit: count
+    type: simple
+    type_params:
+      measure: order_count
+
+  - name: non_cancelled_orders
+    label: Non-cancelled orders
+    description: Count of orders that were not cancelled.
+    config:
+      meta:
+        unit: count
+    type: simple
+    type_params:
+      measure: non_cancelled_order_count
+
+  - name: average_order_value
+    label: Average order value
+    description: Net revenue divided by non-cancelled orders.
+    config:
+      meta:
+        unit: currency
+    type: derived
+    type_params:
+      expr: net_revenue / nullif(non_cancelled_orders, 0)
+      metrics:
+        - name: net_revenue
+        - name: non_cancelled_orders
+
+  - name: units_sold
+    label: Units sold
+    description: Count of non-cancelled order items.
+    config:
+      meta:
+        unit: count
+    type: simple
+    type_params:
+      measure: sold_items
+
+  - name: return_rate
+    label: Return rate
+    description: Returned items divided by delivered items (returned items count as delivered).
+    config:
+      meta:
+        unit: percent
+    type: ratio
+    type_params:
+      numerator: returned_items_metric
+      denominator: delivered_items_metric
+
+  - name: returned_items_metric
+    label: Returned items
+    description: Count of returned order items.
+    config:
+      meta:
+        unit: count
+    type: simple
+    type_params:
+      measure: returned_items
+
+  - name: delivered_items_metric
+    label: Delivered items
+    description: Count of delivered order items, including those later returned.
+    config:
+      meta:
+        unit: count
+    type: simple
+    type_params:
+      measure: delivered_items
+
+  - name: cancellation_rate
+    label: Cancellation rate
+    description: Cancelled orders divided by all orders.
+    config:
+      meta:
+        unit: percent
+    type: ratio
+    type_params:
+      numerator: cancelled_orders
+      denominator: orders
+
+  - name: cancelled_orders
+    label: Cancelled orders
+    description: Count of cancelled orders.
+    config:
+      meta:
+        unit: count
+    type: simple
+    type_params:
+      measure: cancelled_order_count
+
+  - name: gross_margin
+    label: Gross margin
+    description: (Sale price minus cost) divided by sale price, non-cancelled items.
+    config:
+      meta:
+        unit: percent
+    type: ratio
+    type_params:
+      numerator: margin
+      denominator: gross_revenue
+
+  - name: margin
+    label: Margin
+    description: Sale price minus cost, non-cancelled items.
+    config:
+      meta:
+        unit: currency
+    type: simple
+    type_params:
+      measure: margin_amount
+
+  - name: new_customers
+    label: New customers
+    description: Users whose first order (any status) falls in the period.
+    config:
+      meta:
+        unit: count
+    type: simple
+    type_params:
+      measure: first_order_count
+
+  - name: repeat_purchase_rate
+    label: Repeat purchase rate
+    description: Customers with 2+ non-cancelled orders in a calendar month divided by customers with 1+ in that month. Month grain only.
+    config:
+      meta:
+        unit: percent
+    type: ratio
+    type_params:
+      numerator: repeat_customers_metric
+      denominator: purchasing_customers_metric
+
+  - name: repeat_customers_metric
+    label: Repeat customers
+    description: Customers with 2+ non-cancelled orders in the month.
+    config:
+      meta:
+        unit: count
+    type: simple
+    type_params:
+      measure: repeat_customers
+
+  - name: purchasing_customers_metric
+    label: Purchasing customers
+    description: Customers with 1+ non-cancelled orders in the month.
+    config:
+      meta:
+        unit: count
+    type: simple
+    type_params:
+      measure: purchasing_customers
+
+  - name: sessions
+    label: Sessions
+    description: Count of web sessions.
+    config:
+      meta:
+        unit: count
+    type: simple
+    type_params:
+      measure: session_count
+
+  - name: cart_sessions_metric
+    label: Sessions with a cart event
+    description: Sessions with at least one cart event.
+    config:
+      meta:
+        unit: count
+    type: simple
+    type_params:
+      measure: cart_sessions
+
+  - name: purchase_sessions_metric
+    label: Sessions with a purchase
+    description: Sessions with both a cart and a purchase event.
+    config:
+      meta:
+        unit: count
+    type: simple
+    type_params:
+      measure: purchase_sessions
+
+  - name: session_to_cart_rate
+    label: Session-to-cart rate
+    description: Sessions with a cart event divided by all sessions.
+    config:
+      meta:
+        unit: percent
+    type: ratio
+    type_params:
+      numerator: cart_sessions_metric
+      denominator: sessions
+
+  - name: checkout_conversion
+    label: Checkout conversion
+    description: Sessions with a purchase divided by sessions with a cart event.
+    config:
+      meta:
+        unit: percent
+    type: ratio
+    type_params:
+      numerator: purchase_sessions_metric
+      denominator: cart_sessions_metric
+
+  - name: fulfilment_time_hours
+    label: Fulfilment time (hours)
+    description: Median hours from order item creation to shipment, shipped items only.
+    config:
+      meta:
+        unit: hours
+    type: simple
+    type_params:
+      measure: median_hours_to_ship
+
+  - name: active_customers
+    label: Active customers
+    description: Distinct customers with a non-cancelled order in the period.
+    config:
+      meta:
+        unit: count
+    type: simple
+    type_params:
+      measure: active_customer_count
