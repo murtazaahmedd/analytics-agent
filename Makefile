@@ -2,7 +2,7 @@ PY ?= python
 DBT_DIR := demo_workspaces/thelook
 DBT := cd $(DBT_DIR) && TRUEMETRIC_DUCKDB_PATH=../../data/warehouse.duckdb dbt
 
-.PHONY: install data dbt faults test evals ask mcp-semantic mcp-warehouse mcp-checks
+.PHONY: install data dbt faults test evals ask db api mcp-semantic mcp-warehouse mcp-checks
 
 install:
 	$(PY) -m pip install -e ".[dev]"
@@ -25,6 +25,12 @@ evals:
 
 ask:
 	$(PY) -m truemetric "$(Q)"
+
+db:
+	$(PY) db/udf_load.py
+
+api:
+	$(PY) -m uvicorn --factory truemetric.main.app:create_app --reload
 
 MCP_ENV := TRUEMETRIC_WORKSPACE_ID=demo TRUEMETRIC_DBT_PROJECT_DIR=$(DBT_DIR) \
 	TRUEMETRIC_WAREHOUSE_PATH=data/warehouse.duckdb TRUEMETRIC_AS_OF=2026-11-01T00:00:00

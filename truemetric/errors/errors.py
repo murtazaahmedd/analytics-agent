@@ -99,6 +99,13 @@ class _Misc:
         #Complexity: Time O(1)
         """
 
+    class RateLimitExceeded(TrueMetricError):
+        """
+        #Feature: Access control
+        #Scenario: A user sent more requests per minute than allowed (429)
+        #Complexity: Time O(1)
+        """
+
 
 class Errors:
     """

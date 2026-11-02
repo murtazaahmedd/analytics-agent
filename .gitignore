@@ -12,3 +12,4 @@ traces/
 node_modules/
 .next/
 *.egg-info/
+.venv/

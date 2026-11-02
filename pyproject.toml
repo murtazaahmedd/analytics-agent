@@ -19,6 +19,9 @@ dependencies = [
     "tenacity>=8",
     "fastapi>=0.115",
     "uvicorn>=0.30",
+    "sqlalchemy[asyncio]>=2.0",
+    "asyncpg>=0.30",
+    "pyjwt[crypto]>=2.9",
 ]
 
 [project.optional-dependencies]
@@ -29,3 +32,4 @@ include = ["truemetric*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
