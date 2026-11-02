@@ -416,6 +416,12 @@ Use `errors/errors.py` exclusively. Never raise raw `HTTPException`.
   `agent/` (router, data guard, answerer, parsers), `mcp_servers/`, `composition.py` (composition root:
   `build_services(config)`). `demo_workspaces/thelook/` is the first customer's dbt + MetricFlow repo; `evals/` is
   the benchmark (`python -m evals run|faults`); `scripts/` generates data. CLI: `python -m truemetric "question"`.
+- Control plane: `db/` (migrations, `api.*` UDFs, `udf_load.py`), `truemetric/{routers,decorators,main}`, and
+  `control_plane/` sub-packages under `interfaces/`, `repositories/`, `services/`. Its repository and service
+  containers are request-scoped (`ControlPlaneRepositoryContainer`, `ControlPlaneServiceContainer`) because
+  `api.enforce` binds row-level security to the request's transaction; `composition.ControlPlaneRuntime` holds the
+  process-wide engine, JWT verifier and agent runner. The auth context carries `user_id`, `email`, `role` and
+  `workspace_id` (the tenant); there is no organization, plan or concurrency lease yet.
 - The `api.*` UDF and repository rules apply to the Postgres control plane. Customer warehouses are queried through
   `IWarehouseConnector` with MetricFlow-compiled, read-only SQL (no UDFs can be installed there).
 - Tests keep docstrings and annotations but no try/except, so assertion failures stay visible.
